@@ -9,16 +9,26 @@ const canvas = document.createElement('canvas');
 canvas.setAttribute('aria-hidden', 'true');
 eagle.replaceChildren(canvas);
 const gl = canvas.getContext('webgl', {alpha:true, antialias:false, premultipliedAlpha:false});
-let frame=0, active=null, from=null, target=null, started=0, transitioning=false, ready=false;
+let frame=0, ready=false;
+const resting=document.createElement('div');resting.className='eagle-rest';
+const detailed=new Image();detailed.src='assets/eagle-idle.png';detailed.alt='';detailed.className='eagle-detailed';resting.append(detailed);eagle.append(resting);
+const clamp=value=>Math.max(0,Math.min(1,value));
+const smooth=(a,b,value)=>{const t=clamp((value-a)/(b-a));return t*t*(3-2*t)};
 let pointer={x:0,y:0}, drift={x:0,y:0};
-function destination(){
- let id='inicio';
- for(const section of sections) if(section.getBoundingClientRect().top<innerHeight*.38) id=section.id;
- const r=perches.get(id).getBoundingClientRect();
- return {id,x:r.left,y:r.top+(r.height-r.width)/2,size:r.width};
+function perch(id){const r=perches.get(id).getBoundingClientRect();return {id,x:r.left,y:r.top+(r.height-r.width)/2,size:r.width}}
+function scrollScene(){
+ let previous=sections[0];
+ for(let i=1;i<sections.length;i++){
+  const next=sections[i],top=next.getBoundingClientRect().top;
+  const progress=clamp((innerHeight*.9-top)/(innerHeight*.62));
+  if(progress===0)return {from:perch(previous.id),to:perch(previous.id),progress:1};
+  if(progress<1)return {from:perch(previous.id),to:perch(next.id),progress};
+  previous=next;
+ }
+ return {from:perch(previous.id),to:perch(previous.id),progress:1};
 }
 function schedule(){if(!frame&&!document.hidden)frame=requestAnimationFrame(render)}
-function syncMotion(){motion.textContent=paused?'◎ Activar movimiento':'◎ Pausar movimiento';motion.setAttribute('aria-pressed',String(paused));if(paused)transitioning=false;schedule()}
+function syncMotion(){motion.textContent=paused?'◎ Activar movimiento':'◎ Pausar movimiento';motion.setAttribute('aria-pressed',String(paused));eagle.classList.toggle("motion-paused",paused);schedule()}
 motion.onclick=()=>{paused=!paused;syncMotion()};
 reducedMotion.addEventListener('change',e=>{paused=e.matches;syncMotion()});
 addEventListener('scroll',schedule,{passive:true});
@@ -42,26 +52,26 @@ function setup(){
  float ash=sin(3.14159265*p); ash=pow(max(ash,0.0),.75);
  vec3 box=mix(uFrom,uTo,travel);
  vec3 local=aPosition;
- float angle=uPointer.x*.16*uMotion;
+ float angle=0.0;
  float cy=cos(angle),sy=sin(angle);
  local.x=aPosition.x*cy+aPosition.z*sy;
  local.z=-aPosition.x*sy+aPosition.z*cy;
  // Restrained mechanical feather motion, not whole-image flapping.
  float wing=smoothstep(.12,.42,abs(local.x));
- local.y+=sin(uTime*.65+abs(local.x)*3.0)*.006*wing*uMotion;
+
  local.z+=sin(uTime*.65)*.013*wing*uMotion;
- float perspective=1.0/(1.0-local.z*.35);
+ float perspective=1.0;
  vec2 at=box.xy+box.z*(local.xy*perspective+vec2(.5));
- float swirl=uTime*.38+aSeed.y*6.283;
+ float swirl=uProgress*5.0+aSeed.y*6.283;
  vec2 debris=vec2(cos(swirl)*(70.0+180.0*aSeed.z),sin(swirl)*80.0-100.0*aSeed.y);
  at+=debris*ash;
  at.y-=sin(travel*3.14159265)*100.0;
- at.y+=sin(uTime*.55)*2.0*uMotion*(1.0-ash);
+
  vec2 clip=at/uResolution*2.0-1.0;
  gl_Position=vec4(clip.x,-clip.y,local.z*.1,1.0);
- gl_PointSize=clamp(box.z/240.0*1.7, .9, 4.2)*uDpr*mix(1.0,.75,ash);
+ gl_PointSize=clamp(box.z/240.0*1.7, .9, 4.2)*uDpr*mix(1.0,1.25,ash);
  vec3 ember=mix(vec3(.59,.77,.30),vec3(1.0,.53,.17),step(.83,aSeed.y));
- vColor=vec4(mix(aColor.rgb,ember,ash*.78),aColor.a*mix(1.0,.66,ash));vAsh=ash;
+ vColor=vec4(mix(aColor.rgb,ember,ash*.78),aColor.a*mix(1.0,.9,ash));vAsh=ash;
  }`;
  const fragment=`precision mediump float; varying vec4 vColor; varying float vAsh;
  void main(){float r=length(gl_PointCoord-.5);if(r>.5)discard;float alpha=1.0-smoothstep(.25,.5,r);gl_FragColor=vec4(vColor.rgb,vColor.a*alpha);}`;
@@ -69,31 +79,33 @@ function setup(){
  for(const key of ['Resolution','Pointer','From','To','Progress','Time','Dpr','Motion'])uniforms[key]=gl.getUniformLocation(program,'u'+key);
  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
 }
-function fallback(){
- eagle.dataset.renderer='fallback';canvas.remove();const img=new Image();img.src='assets/eagle-idle.png';img.alt='';eagle.append(img);ready=true;schedule();
-}
+function fallback(){eagle.dataset.renderer='fallback';canvas.style.display='none';ready=true;schedule()}
 function render(now){
  frame=0;if(!ready)return;
- const next=destination();
- if(!target){target=next;from=next;active=next.id;started=now;transitioning=!paused;from={...next,y:next.y+35};}
- if(next.id!==active&&!transitioning){from={...target};target=next;active=next.id;started=now;transitioning=!paused;}
- // While ash is travelling, its destination follows the heading during scrolling.
- if(next.id===active)target=next;
- const progress=transitioning?Math.min(1,(now-started)/2400):1;
- if(progress===1)transitioning=false;
- eagle.dataset.section=active;eagle.dataset.phase=transitioning?'ashes':'perched';
- if(!gl||eagle.dataset.renderer==='fallback'){
-  const img=eagle.querySelector('img');img.style.width=next.size+'px';img.style.transform=`translate(${next.x}px,${next.y}px)`;
-  if(next.id!==active)schedule();return;
- }
- drift.x+=(pointer.x-drift.x)*.035;drift.y+=(pointer.y-drift.y)*.035;
- gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
- gl.uniform2f(uniforms.Resolution,innerWidth,innerHeight);gl.uniform2f(uniforms.Pointer,drift.x,drift.y);
- gl.uniform3f(uniforms.From,from.x,from.y,from.size);gl.uniform3f(uniforms.To,target.x,target.y,target.size);
- gl.uniform1f(uniforms.Progress,progress);gl.uniform1f(uniforms.Time,paused?0:now/1000);
- gl.uniform1f(uniforms.Dpr,canvas.width/innerWidth);gl.uniform1f(uniforms.Motion,paused?0:1);
- gl.drawArrays(gl.POINTS,0,count);
- if(!paused||next.id!==active)schedule();
+ let {from,to,progress}=scrollScene();
+ const noEffects=paused||!gl||eagle.dataset.renderer==='fallback';
+ if(noEffects){to=progress<.5?from:to;from=to;progress=1}
+ const dissolve=smooth(0,.18,progress),assemble=smooth(.82,1,progress);
+ const opacity=1-dissolve+assemble;
+ const pose=progress<.5?from:to;
+ resting.style.width=pose.size+'px';resting.style.height=pose.size+'px';
+ resting.style.transform=`translate3d(${pose.x}px,${pose.y}px,0)`;
+ resting.style.opacity=opacity;
+ drift.x+=(pointer.x-drift.x)*.04;drift.y+=(pointer.y-drift.y)*.04;
+ detailed.style.setProperty('--look',paused?'0deg':(drift.x*7)+'deg');
+ detailed.style.setProperty('--nod',paused?'0deg':(-drift.y*4)+'deg');
+ eagle.dataset.section=pose.id;eagle.dataset.phase=opacity<.99?'ashes':'perched';eagle.dataset.progress=progress.toFixed(4);
+ if(!noEffects){
+  canvas.style.opacity=1-opacity;
+  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.uniform2f(uniforms.Resolution,innerWidth,innerHeight);gl.uniform2f(uniforms.Pointer,0,0);
+  gl.uniform3f(uniforms.From,from.x,from.y,from.size);gl.uniform3f(uniforms.To,to.x,to.y,to.size);
+  gl.uniform1f(uniforms.Progress,progress);gl.uniform1f(uniforms.Time,0);
+  gl.uniform1f(uniforms.Dpr,canvas.width/innerWidth);gl.uniform1f(uniforms.Motion,0);
+  if(opacity<1)gl.drawArrays(gl.POINTS,0,count);
+ }else canvas.style.opacity=0;
+ // Particles depend exclusively on scroll, never on elapsed time.
+ if(!paused&&(Math.abs(pointer.x-drift.x)>.001||Math.abs(pointer.y-drift.y)>.001))schedule();
 }
 canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(frame);frame=0;fallback()},{once:true});
 if(gl){

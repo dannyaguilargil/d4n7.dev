@@ -14,3 +14,10 @@
 @media(max-width:1000px){.hero h1{font-size:72px;letter-spacing:-4px}.hero-perch{top:60px;width:44%;right:-1%}.eagle-perch{flex-basis:100px}.perch-heading{gap:12px}.hero{min-height:700px}}
 @media(max-width:650px){header{height:auto;min-height:105px;flex-wrap:wrap;padding:12px 0;gap:14px}header nav{width:100%;justify-content:space-between;gap:8px}header nav a:nth-child(2){display:block}.hero{padding-top:35px;min-height:1000px}.hero-copy{display:flex;flex-direction:column}.hero h1{padding:0;font-size:clamp(54px,12vw,76px);letter-spacing:-3px;margin-bottom:14px}.hero p{max-width:100%}.hero-perch{position:relative;order:5;right:auto;top:auto;align-self:center;flex:none;width:min(100%,380px);height:auto;aspect-ratio:1;margin:12px 0 8px}.hero-actions{order:3}.path{order:4}.hero .eyebrow{font-size:9px}.eagle-perch{width:84px;height:96px;flex-basis:84px}.about h2{font-size:39px}.contact h2{font-size:36px}.perch-heading{gap:8px}.hero-bottom{bottom:12px}}
 @media(max-width:650px){.hero .hero-perch{width:min(100%,380px);height:auto;flex:none;aspect-ratio:1}}
+
+/* Full-resolution resting pose. GPU particles are visible only during the scroll transition. */
+.eagle-rest{position:absolute;left:0;top:0;perspective:1000px;will-change:transform,opacity}
+.eagle-detailed{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 65%;transform:rotateY(var(--look,0deg)) rotateX(var(--nod,0deg));animation:eagle-respire 7s ease-in-out infinite;filter:drop-shadow(0 8px 15px #0005);will-change:transform}
+@keyframes eagle-respire{0%,100%{transform:rotateY(var(--look,0deg)) rotateX(var(--nod,0deg)) translateY(0) scale(1)}50%{transform:rotateY(var(--look,0deg)) rotateX(var(--nod,0deg)) translateY(-2px) scale(1.009)}}
+.motion-paused .eagle-detailed{animation:none;transform:none!important}
+@media(prefers-reduced-motion:reduce){.eagle-detailed{animation:none;transform:none!important}}

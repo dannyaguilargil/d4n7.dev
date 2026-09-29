@@ -35,3 +35,7 @@ El dominio deseado es `d4n7.dev`. La conexión DNS y el proveedor de hosting se 
 La ilustración original se muestrea en una escultura de puntos WebGL con profundidad aproximada, perspectiva y movimiento mecánico sutil. No es una malla 3D articulada. Al cambiar de sección, las partículas se dispersan como cenizas y vuelven a construir la silueta junto al título; la portada reserva una composición de gran tamaño.
 
 El render funciona sin dependencias externas, limita la resolución para móviles, se detiene en pestañas ocultas y respeta movimiento reducido. Sin WebGL se utiliza la ilustración estática. La pausa desactiva tanto la transición como el movimiento ambiental.
+
+### Scroll reversible y reposo nítido
+
+El progreso de cada transición depende exclusivamente de la posición de scroll: se puede detener o invertir al desplazarse. El giro de las cenizas también depende del progreso, sin temporizadores. En reposo se muestra el PNG original de alta resolución con respiración y orientación suave hacia el cursor; las partículas solo aparecen durante la transición. Es una composición 2.5D, no una nueva malla articulada.
