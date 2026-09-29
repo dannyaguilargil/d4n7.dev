@@ -30,6 +30,8 @@ El sitio se puede alojar en cualquier servidor de archivos estáticos, sirviendo
 
 El dominio deseado es `d4n7.dev`. La conexión DNS y el proveedor de hosting se configuran por separado.
 
-## Ilustración del águila
+## Águila Phoenix
 
-`assets/eagle-idle.png` y `assets/eagle-spread.png` son ilustraciones originales generadas con la herramienta integrada de imágenes. Una única mascota pequeña vuela automáticamente entre posiciones reservadas junto al logo y los títulos de las secciones, según el scroll. Durante el trayecto alterna las dos poses para simular el aleteo y al llegar se posa. No es un modelo 3D articulado. No bloquea clics ni lectura; con movimiento reducido o al pausar cambia de posición sin animación.
+La ilustración original se muestrea en una escultura de puntos WebGL con profundidad aproximada, perspectiva y movimiento mecánico sutil. No es una malla 3D articulada. Al cambiar de sección, las partículas se dispersan como cenizas y vuelven a construir la silueta junto al título; la portada reserva una composición de gran tamaño.
+
+El render funciona sin dependencias externas, limita la resolución para móviles, se detiene en pestañas ocultas y respeta movimiento reducido. Sin WebGL se utiliza la ilustración estática. La pausa desactiva tanto la transición como el movimiento ambiental.
