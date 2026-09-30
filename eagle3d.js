@@ -11,7 +11,7 @@ const clamp = THREE.MathUtils.clamp;
 const smooth = (a,b,x)=>THREE.MathUtils.smoothstep(x,a,b);
 function perch(id){const r=perches.get(id).getBoundingClientRect();return {id,x:r.left,y:id==='inicio'?r.bottom-r.width*(.5+1.14/5.5):r.top+(r.height-r.width)/2,size:r.width}}
 function scrollScene(){let prev=sections[0];for(let i=1;i<sections.length;i++){const next=sections[i],p=clamp((innerHeight*.9-next.getBoundingClientRect().top)/(innerHeight*.62),0,1);if(p===0)return {from:perch(prev.id),to:perch(prev.id),p:1};if(p<1)return {from:perch(prev.id),to:perch(next.id),p};prev=next}return {from:perch(prev.id),to:perch(prev.id),p:1}}
-function fallback(){failed=true;host.replaceChildren();const img=new Image();img.src='assets/eagle-idle.png';img.alt='';host.append(img);host.dataset.renderer='fallback';const update=()=>{const s=scrollScene(),p=s.p<.5?s.from:s.to;img.style.cssText=`position:absolute;width:${p.size}px;transform:translate(${p.x}px,${p.y}px)`};update();addEventListener('scroll',update,{passive:true});addEventListener('resize',update)}
+function fallback(){failed=true;host.hidden=true;host.replaceChildren();const img=new Image();img.onload=()=>{host.hidden=false};img.src='assets/eagle-idle.png';img.alt='';host.append(img);host.dataset.renderer='fallback';const update=()=>{const s=scrollScene(),p=s.p<.5?s.from:s.to;img.style.cssText=`position:absolute;width:${p.size}px;transform:translate(${p.x}px,${p.y}px)`};update();addEventListener('scroll',update,{passive:true});addEventListener('resize',update)}
 try { initialize(); } catch(error){console.warn('Aquila 3D unavailable:',error.message);fallback()}
 
 function initialize(){
@@ -164,7 +164,7 @@ function initialize(){
   wing.userData.tip.rotation.z=-sign*Math.sin(beat-.45)*amplitude*.12;
  });
  host.dataset.section=travel<.5?s.from.id:s.to.id;host.dataset.phase=flight>.05?'flying':(heroRest?'idle-wingbeat':'perched');host.dataset.progress=p.toFixed(4);host.dataset.direction=flight<.05?'rest':lastDirection<0?'up':'down';
- renderer.render(scene,camera);if(!paused)request();
+ renderer.render(scene,camera);host.hidden=false;if(!paused)request();
  }
  function resize(){renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<700?1.5:2));renderer.setSize(innerWidth,innerHeight);camera.left=-innerWidth/2;camera.right=innerWidth/2;camera.top=innerHeight/2;camera.bottom=-innerHeight/2;camera.updateProjectionMatrix();request()}
  addEventListener('scroll',request,{passive:true});addEventListener('resize',resize);document.fonts.ready.then(request);
