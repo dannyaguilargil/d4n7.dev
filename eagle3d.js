@@ -9,7 +9,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 let paused = reduce.matches, renderer, running = 0, failed = false;
 const clamp = THREE.MathUtils.clamp;
 const smooth = (a,b,x)=>THREE.MathUtils.smoothstep(x,a,b);
-function perch(id){const r=perches.get(id).getBoundingClientRect();return {id,x:r.left,y:r.top+(r.height-r.width)/2,size:r.width}}
+function perch(id){const r=perches.get(id).getBoundingClientRect();return {id,x:r.left,y:id==='inicio'?r.bottom-r.width*(.5+1.14/5.5):r.top+(r.height-r.width)/2,size:r.width}}
 function scrollScene(){let prev=sections[0];for(let i=1;i<sections.length;i++){const next=sections[i],p=clamp((innerHeight*.9-next.getBoundingClientRect().top)/(innerHeight*.62),0,1);if(p===0)return {from:perch(prev.id),to:perch(prev.id),p:1};if(p<1)return {from:perch(prev.id),to:perch(next.id),p};prev=next}return {from:perch(prev.id),to:perch(prev.id),p:1}}
 function fallback(){failed=true;host.replaceChildren();const img=new Image();img.src='assets/eagle-idle.png';img.alt='';host.append(img);host.dataset.renderer='fallback';const update=()=>{const s=scrollScene(),p=s.p<.5?s.from:s.to;img.style.cssText=`position:absolute;width:${p.size}px;transform:translate(${p.x}px,${p.y}px)`};update();addEventListener('scroll',update,{passive:true});addEventListener('resize',update)}
 try { initialize(); } catch(error){console.warn('Aquila 3D unavailable:',error.message);fallback()}
@@ -142,6 +142,16 @@ function initialize(){
  model.rotation.set(dy*.07+direction*.72,angle,-direction*.14+Math.sin(elapsed*.38)*.009);
  model.position.y=Math.sin(elapsed*(flight>0.01?4:.8))*(.018+flight*.03);
  head.rotation.y=dx*.25+Math.sin(elapsed*.26)*.035;head.rotation.x=dy*.08+direction*.24;
+ // Anchor the midpoint of the talons to the controls while resting. Fade the
+ // correction on takeoff so the same model can fly freely between sections.
+ const heroWeight=(s.from.id==='inicio'?1-travel:0)+(s.to.id==='inicio'?travel:0);
+ if(heroWeight>0){
+  const talons=new THREE.Vector3(0,-1.14,.38).applyEuler(model.rotation).add(model.position);
+  const scale=size/5.5;
+  root.position.x-=talons.x*scale*heroWeight;
+  root.position.y-=(talons.y+1.14)*scale*heroWeight;
+ }
+
  // Idle wing display on the hero; stronger wingbeats while travelling.
  const heroRest=s.from.id==='inicio'&&s.to.id==='inicio';
  const idle=heroRest?.23:.025;

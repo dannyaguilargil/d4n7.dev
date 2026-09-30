@@ -19,3 +19,19 @@
 .hero-perch{width:53%;right:-4%;top:25px}.hero h1{padding-right:46%}
 @media(max-width:1000px) and (min-width:651px){.hero-perch{width:48%;right:-2%;top:85px}}
 @media(max-width:650px){.hero .hero-perch{width:min(100%,400px);height:auto;aspect-ratio:1;right:auto;top:auto}}
+
+/* The hero controls form the ledge beneath the eagle's talons. */
+.hero-copy{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,1fr);column-gap:3%;align-items:start}
+.hero .eyebrow{grid-column:1/-1}
+.hero h1{grid-column:1;grid-row:2;padding-right:0;font-size:clamp(54px,6.6vw,104px)}
+.hero p{grid-column:1;grid-row:3;max-width:100%;margin-bottom:0}
+.hero-stage{grid-column:2;grid-row:2/5;align-self:end;min-width:0;padding-top:20px}
+.hero .hero-perch{position:relative;display:block;width:100%;height:clamp(260px,30vw,440px);aspect-ratio:auto;inset:auto;margin:0;flex:none}
+.hero-stage .hero-actions{display:grid;grid-template-columns:1.15fr 1fr;gap:0;margin:0;border-top:3px solid var(--lime);box-shadow:0 -1px 15px #c1ff5815;position:relative}
+.hero-stage .hero-actions:before{content:"";position:absolute;top:-3px;left:40%;width:20%;height:5px;background:#232c19;filter:blur(2px);pointer-events:none}
+.hero-stage .button,.hero-stage .text-button{min-width:0;min-height:66px;padding:18px 12px;font-size:clamp(12px,1.1vw,16px);justify-content:center;text-align:center;white-space:nowrap}
+.hero-stage .button{gap:12px}.hero-stage .text-button{background:#11150f;border:1px solid #303a26;border-top:0;color:var(--fg)}
+.hero-stage .text-button:hover{background:#1d2615;color:var(--lime)}
+.hero .path{grid-column:1;grid-row:4;margin-top:32px}
+@media(max-width:1000px) and (min-width:651px){.hero h1{font-size:clamp(49px,7vw,70px)}.hero-stage .button,.hero-stage .text-button{font-size:12px;padding:16px 8px}.hero-stage .button span{display:none}}
+@media(max-width:650px){.hero{min-height:0;padding-bottom:90px}.hero-copy{display:flex}.hero h1{font-size:clamp(54px,12vw,76px)}.hero-stage{order:3;width:100%;max-width:440px;align-self:center;padding-top:8px}.hero .hero-perch{width:100%;height:290px}.hero-stage .hero-actions{order:initial}.hero-stage .button,.hero-stage .text-button{font-size:13px}.hero .path{order:4;margin-top:28px}}
