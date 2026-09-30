@@ -22,15 +22,15 @@ function initialize(){
  const scene=new THREE.Scene();
  const camera=new THREE.OrthographicCamera(-innerWidth/2,innerWidth/2,innerHeight/2,-innerHeight/2,.1,3000);camera.position.z=1200;
  const pmrem=new THREE.PMREMGenerator(renderer);const room=new RoomEnvironment();const environment=pmrem.fromScene(room,.035);scene.environment=environment.texture;scene.environmentIntensity=.7;room.dispose();pmrem.dispose();
- scene.add(new THREE.HemisphereLight(0xc5ddff,0x131710,.6));
+ scene.add(new THREE.HemisphereLight(0xe8eddf,0x131710,.6));
  const key=new THREE.DirectionalLight(0xf3f5ea,3.2);key.position.set(-300,400,700);scene.add(key);
- const rim=new THREE.DirectionalLight(0xb4d8e9,2.4);rim.position.set(400,150,-400);scene.add(rim);
- const fill=new THREE.DirectionalLight(0x25dbd2,1.5);fill.position.set(-450,-50,-200);scene.add(fill);
+ const rim=new THREE.DirectionalLight(0xd5e5be,2.4);rim.position.set(400,150,-400);scene.add(rim);
+ const fill=new THREE.DirectionalLight(0xc1ff58,1.5);fill.position.set(-450,-50,-200);scene.add(fill);
  const root=new THREE.Group();scene.add(root);const model=new THREE.Group();root.add(model);
  function metal(color,roughness=.3,metalness=.9){return new THREE.MeshPhysicalMaterial({color,roughness,metalness,clearcoat:.38,clearcoatRoughness:.28})}
- const graphite=metal(0x12343f,.3), titanium=metal(0x4c97a2,.25), edge=metal(0x237790,.26), black=metal(0x071720,.42), beakMetal=metal(0x9ac4c5,.2);
- const cyan=metal(0x17b9bc,.26,.7), blue=metal(0x245cad,.29,.75);cyan.side=blue.side=THREE.DoubleSide;
- const lime=metal(0x56e5dc,.22,.55);lime.emissive=new THREE.Color(0x0dcec7);lime.emissiveIntensity=1.35;
+ const graphite=metal(0x252c25,.3), titanium=metal(0x818b79,.25), edge=metal(0x4e5945,.26), black=metal(0x090d09,.42), beakMetal=metal(0xb6bdae,.2);
+ const accentMetal=metal(0x708447,.26,.7), deepMetal=metal(0x303b29,.29,.75);accentMetal.side=deepMetal.side=THREE.DoubleSide;
+ const lime=metal(0xc1ff58,.22,.55);lime.emissive=new THREE.Color(0x9be532);lime.emissiveIntensity=1.35;
  const sphere=new THREE.SphereGeometry(1,24,16);
  function mesh(g,m,parent=model,x=0,y=0,z=0){const o=new THREE.Mesh(g,m);o.position.set(x,y,z);parent.add(o);return o}
  function ellipsoid(parent,x,y,z,sx,sy,sz,m){const o=mesh(sphere,m,parent,x,y,z);o.scale.set(sx,sy,sz);return o}
@@ -54,7 +54,7 @@ function initialize(){
  const shield=new THREE.Shape();shield.moveTo(0,.35);shield.lineTo(.18,.22);shield.lineTo(.14,-.07);shield.quadraticCurveTo(.07,-.29,0,-.38);shield.quadraticCurveTo(-.07,-.29,-.14,-.07);shield.lineTo(-.18,.22);shield.closePath();
  const shieldGeo=new THREE.ExtrudeGeometry(shield,{depth:.04,bevelEnabled:true,bevelSize:.018,bevelThickness:.025,bevelSegments:3,steps:1});
  mesh(shieldGeo,graphite,model,0,.10,.49);
- for(let side of [-1,1]){rod(model,[side*.14,.31,.57],[side*.105,.10,.565],.009,cyan);rod(model,[side*.105,.10,.565],[0,-.22,.55],.007,edge)}
+ for(let side of [-1,1]){rod(model,[side*.14,.31,.57],[side*.105,.10,.565],.009,accentMetal);rod(model,[side*.105,.10,.565],[0,-.22,.55],.007,edge)}
  // Crest-shaped power cell on sternum.
  const chest=new THREE.Shape();chest.moveTo(-.07,.06);chest.lineTo(.07,.06);chest.lineTo(0,-.11);chest.closePath();mesh(new THREE.ExtrudeGeometry(chest,{depth:.016,bevelEnabled:true,bevelSize:.008,bevelThickness:.008,bevelSegments:2,steps:1}),lime,model,0,.28,.58);
  // Neck vertebrae and swept-back feather collar.
@@ -62,7 +62,7 @@ function initialize(){
  const head=new THREE.Group();head.position.set(0,1.08,.055);model.add(head);
  ellipsoid(head,0,.14,.02,.27,.27,.30,titanium);
  ellipsoid(head,0,.26,-.08,.27,.15,.25,graphite);
- for(let j=0;j<3;j++){const crest=feather(head,(j-1)*.085,.43,-.08,.12,.34,0,j===1?cyan:edge);crest.rotation.x=-.9;}
+ for(let j=0;j<3;j++){const crest=feather(head,(j-1)*.085,.43,-.08,.12,.34,0,j===1?accentMetal:edge);crest.rotation.x=-.9;}
  for(let i=0;i<5;i++)for(let side of [-1,1]){const f=feather(head,side*(.07+i*.025),.39-i*.047,-.10-i*.022,.18,.35,-side*.35,graphite);f.rotation.x=-.65;f.rotation.y=side*.65}
  // Hooked beak, extruded in the lateral direction, points toward +Z.
  const profile=new THREE.Shape();profile.moveTo(.17,.21);profile.bezierCurveTo(.39,.23,.59,.08,.60,-.08);profile.lineTo(.52,-.22);profile.bezierCurveTo(.51,-.07,.40,-.025,.24,-.04);profile.lineTo(.15,.06);profile.closePath();
@@ -89,17 +89,17 @@ function initialize(){
  // Long primary feathers form the unmistakable broad eagle fan.
  for(let i=0;i<10;i++){
  const x=.17+i*.15,y=.32+i*.025;
- const f=feather(wing,x,y,.07-i*.009,.22,1.10+i*.048,.20+i*.052,i>6?blue:(i%3===0?cyan:graphite));f.rotation.y=-.12;
+ const f=feather(wing,x,y,.07-i*.009,.22,1.10+i*.048,.20+i*.052,i>6?deepMetal:(i%3===0?accentMetal:graphite));f.rotation.y=-.12;
  }
  for(let i=0;i<9;i++){
- const f=feather(tip,.10+i*.11,.09+i*.008,.015,.23,1.15-i*.044,.42+i*.07,i>5?blue:(i%3===0?cyan:edge));f.rotation.y=-.08;
+ const f=feather(tip,.10+i*.11,.09+i*.008,.015,.23,1.15-i*.044,.42+i*.07,i>5?deepMetal:(i%3===0?accentMetal:edge));f.rotation.y=-.08;
  }
  // Overlapping covert rows catch studio highlights without painted texture.
- for(let row=0;row<3;row++)for(let i=0;i<10-row;i++)feather(wing,.1+i*.13,.29-row*.13+i*.025,.12+row*.045,.21,.42+row*.07,.2+i*.03,row===0?cyan:((i+row)%3?graphite:edge));
+ for(let row=0;row<3;row++)for(let i=0;i<10-row;i++)feather(wing,.1+i*.13,.29-row*.13+i*.025,.12+row*.045,.21,.42+row*.07,.2+i*.03,row===0?accentMetal:((i+row)%3?graphite:edge));
  for(let i=0;i<3;i++)rod(wing,[.3+i*.22,.28+i*.04,.20],[.40+i*.22,.10+i*.04,.21],.006,lime);
  }
  // Tail fan, articulated shins and curved talons.
- for(let i=-3;i<=3;i++){const f=feather(model,i*.085,-.56,-.18,.19,.90-Math.abs(i)*.05,-i*.09, i%2?blue:cyan);f.rotation.x=-.18}
+ for(let i=-3;i<=3;i++){const f=feather(model,i*.085,-.56,-.18,.19,.90-Math.abs(i)*.05,-i*.09, i%2?deepMetal:accentMetal);f.rotation.x=-.18}
  for(let side of [-1,1]){
  ellipsoid(model,side*.25,-.65,.07,.17,.25,.18,graphite);rod(model,[side*.24,-.69,.08],[side*.26,-1.02,.20],.052,titanium);
  for(let j=0;j<3;j++)mesh(new THREE.TorusGeometry(.058,.012,6,16),edge,model,side*.26,-.87-j*.06,.19).rotation.x=Math.PI/2;

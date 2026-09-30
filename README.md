@@ -40,4 +40,4 @@ Three.js 0.180.0 está incluido en `vendor/three/` con su licencia MIT; no requi
 
 ### Paleta y vuelo direccional
 
-La paleta del águila combina turquesa, cian y azul profundo, inspirada en el lenguaje visual de Parrot OS (https://www.parrotsec.org/), con anatomía y geometría de águila propias. Las placas del pecho, la cresta y las filas de plumas tienen acabados diferenciados. El sentido del scroll controla la inclinación del cuerpo y el pico para ascender o descender; en portada mueve las alas lentamente incluso sin desplazamiento. No hay integración ni afiliación con Parrot.
+La paleta del águila sigue los colores de la página: metal grafito oscuro, reflejos plateados y detalles luminosos verde lima. Las placas del pecho, la cresta y las filas de plumas tienen acabados diferenciados. El sentido del scroll controla la inclinación del cuerpo y el pico para ascender o descender; en portada mueve las alas lentamente incluso sin desplazamiento.
