@@ -38,7 +38,7 @@
 
 /* Brief terminal-style entrance; the logo keeps its full layout width. */
 header .brand{display:inline-block;white-space:nowrap;animation:brand-reveal .85s steps(8,end) .15s both}
-header .brand b{display:inline-block;animation:brand-cursor .7s step-end 1s 3}
+header .brand b{display:inline-block;animation:brand-cursor .7s step-end 1s 5}
 @keyframes brand-reveal{from{clip-path:inset(0 100% 0 0);opacity:.35}to{clip-path:inset(0 0 0 0);opacity:1}}
 @keyframes brand-cursor{0%,100%{opacity:1}50%{opacity:0}}
 body:has(#motion[aria-pressed="true"]) header .brand,body:has(#motion[aria-pressed="true"]) header .brand b{animation:none}
