@@ -37,3 +37,7 @@ El dominio deseado es `d4n7.dev`. La conexión DNS y el proveedor de hosting se 
 El scroll controla el recorrido reversible entre títulos. El ave permanece sólida y aletea durante el trayecto, con movimiento de muñecas retrasado respecto de los hombros y una inclinación ligada a la velocidad del scroll. En reposo respira y orienta la cabeza sutilmente hacia el cursor. Pausar movimiento y la preferencia de movimiento reducido desactivan el vuelo.
 
 Three.js 0.180.0 está incluido en `vendor/three/` con su licencia MIT; no requiere servicios externos para cargar la escena. Sirve el proyecto mediante HTTP para los módulos ES. El render limita la densidad de píxeles y se suspende al ocultar la pestaña.
+
+### Paleta y vuelo direccional
+
+La paleta del águila combina turquesa, cian y azul profundo, inspirada en el lenguaje visual de Parrot OS (https://www.parrotsec.org/), con anatomía y geometría de águila propias. Las placas del pecho, la cresta y las filas de plumas tienen acabados diferenciados. El sentido del scroll controla la inclinación del cuerpo y el pico para ascender o descender; en portada mueve las alas lentamente incluso sin desplazamiento. No hay integración ni afiliación con Parrot.

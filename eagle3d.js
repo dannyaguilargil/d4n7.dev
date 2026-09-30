@@ -25,11 +25,12 @@ function initialize(){
  scene.add(new THREE.HemisphereLight(0xc5ddff,0x131710,.6));
  const key=new THREE.DirectionalLight(0xf3f5ea,3.2);key.position.set(-300,400,700);scene.add(key);
  const rim=new THREE.DirectionalLight(0xb4d8e9,2.4);rim.position.set(400,150,-400);scene.add(rim);
- const fill=new THREE.DirectionalLight(0xbbff68,1.5);fill.position.set(-450,-50,-200);scene.add(fill);
+ const fill=new THREE.DirectionalLight(0x25dbd2,1.5);fill.position.set(-450,-50,-200);scene.add(fill);
  const root=new THREE.Group();scene.add(root);const model=new THREE.Group();root.add(model);
  function metal(color,roughness=.3,metalness=.9){return new THREE.MeshPhysicalMaterial({color,roughness,metalness,clearcoat:.38,clearcoatRoughness:.28})}
- const graphite=metal(0x202b31,.34), titanium=metal(0x65737a,.25), edge=metal(0x3b474d,.22), black=metal(0x090f13,.48), beakMetal=metal(0xa7afa9,.2);
- const lime=metal(0x9cc948,.22,.55);lime.emissive=new THREE.Color(0x7fce22);lime.emissiveIntensity=1.9;
+ const graphite=metal(0x12343f,.3), titanium=metal(0x4c97a2,.25), edge=metal(0x237790,.26), black=metal(0x071720,.42), beakMetal=metal(0x9ac4c5,.2);
+ const cyan=metal(0x17b9bc,.26,.7), blue=metal(0x245cad,.29,.75);cyan.side=blue.side=THREE.DoubleSide;
+ const lime=metal(0x56e5dc,.22,.55);lime.emissive=new THREE.Color(0x0dcec7);lime.emissiveIntensity=1.35;
  const sphere=new THREE.SphereGeometry(1,24,16);
  function mesh(g,m,parent=model,x=0,y=0,z=0){const o=new THREE.Mesh(g,m);o.position.set(x,y,z);parent.add(o);return o}
  function ellipsoid(parent,x,y,z,sx,sy,sz,m){const o=mesh(sphere,m,parent,x,y,z);o.scale.set(sx,sy,sz);return o}
@@ -49,13 +50,19 @@ function initialize(){
  ellipsoid(model,0,.18,.16,.43,.59,.28,graphite);
  for(let row=0;row<6;row++){const y=.66-row*.2,spread=.31*(1-Math.abs(row-2)*.07);for(let side of [-1,1]){const f=feather(model,side*spread,y,.38+(2-Math.abs(row-2))*.035,.35,.49,side*-.36,row%2?edge:graphite);f.rotation.y=side*.25}}
  feather(model,0,.42,.46,.36,.72,0,titanium);
+ // Sculpted shield plates replace the soft central breast silhouette.
+ const shield=new THREE.Shape();shield.moveTo(0,.35);shield.lineTo(.18,.22);shield.lineTo(.14,-.07);shield.quadraticCurveTo(.07,-.29,0,-.38);shield.quadraticCurveTo(-.07,-.29,-.14,-.07);shield.lineTo(-.18,.22);shield.closePath();
+ const shieldGeo=new THREE.ExtrudeGeometry(shield,{depth:.04,bevelEnabled:true,bevelSize:.018,bevelThickness:.025,bevelSegments:3,steps:1});
+ mesh(shieldGeo,graphite,model,0,.10,.49);
+ for(let side of [-1,1]){rod(model,[side*.14,.31,.57],[side*.105,.10,.565],.009,cyan);rod(model,[side*.105,.10,.565],[0,-.22,.55],.007,edge)}
  // Crest-shaped power cell on sternum.
- const chest=new THREE.Shape();chest.moveTo(-.07,.06);chest.lineTo(.07,.06);chest.lineTo(0,-.11);chest.closePath();mesh(new THREE.ExtrudeGeometry(chest,{depth:.016,bevelEnabled:true,bevelSize:.008,bevelThickness:.008,bevelSegments:2,steps:1}),lime,model,0,.28,.53);
+ const chest=new THREE.Shape();chest.moveTo(-.07,.06);chest.lineTo(.07,.06);chest.lineTo(0,-.11);chest.closePath();mesh(new THREE.ExtrudeGeometry(chest,{depth:.016,bevelEnabled:true,bevelSize:.008,bevelThickness:.008,bevelSegments:2,steps:1}),lime,model,0,.28,.58);
  // Neck vertebrae and swept-back feather collar.
  for(let j=0;j<4;j++){ellipsoid(model,0,.65+j*.11,-j*.025,.27-j*.024,.15,.25-j*.02,j%2?edge:graphite);for(let side of [-1,1])feather(model,side*(.19-j*.018),.92+j*.08,-.035,.19,.34,side*-.48,edge)}
  const head=new THREE.Group();head.position.set(0,1.08,.055);model.add(head);
  ellipsoid(head,0,.14,.02,.27,.27,.30,titanium);
  ellipsoid(head,0,.26,-.08,.27,.15,.25,graphite);
+ for(let j=0;j<3;j++){const crest=feather(head,(j-1)*.085,.43,-.08,.12,.34,0,j===1?cyan:edge);crest.rotation.x=-.9;}
  for(let i=0;i<5;i++)for(let side of [-1,1]){const f=feather(head,side*(.07+i*.025),.39-i*.047,-.10-i*.022,.18,.35,-side*.35,graphite);f.rotation.x=-.65;f.rotation.y=side*.65}
  // Hooked beak, extruded in the lateral direction, points toward +Z.
  const profile=new THREE.Shape();profile.moveTo(.17,.21);profile.bezierCurveTo(.39,.23,.59,.08,.60,-.08);profile.lineTo(.52,-.22);profile.bezierCurveTo(.51,-.07,.40,-.025,.24,-.04);profile.lineTo(.15,.06);profile.closePath();
@@ -82,17 +89,17 @@ function initialize(){
  // Long primary feathers form the unmistakable broad eagle fan.
  for(let i=0;i<10;i++){
  const x=.17+i*.15,y=.32+i*.025;
- const f=feather(wing,x,y,.07-i*.009,.22,1.10+i*.048,.20+i*.052,i%3===0?edge:graphite);f.rotation.y=-.12;
+ const f=feather(wing,x,y,.07-i*.009,.22,1.10+i*.048,.20+i*.052,i>6?blue:(i%3===0?cyan:graphite));f.rotation.y=-.12;
  }
  for(let i=0;i<9;i++){
- const f=feather(tip,.10+i*.11,.09+i*.008,.015,.23,1.15-i*.044,.42+i*.07,i%3===0?titanium:graphite);f.rotation.y=-.08;
+ const f=feather(tip,.10+i*.11,.09+i*.008,.015,.23,1.15-i*.044,.42+i*.07,i>5?blue:(i%3===0?cyan:edge));f.rotation.y=-.08;
  }
  // Overlapping covert rows catch studio highlights without painted texture.
- for(let row=0;row<3;row++)for(let i=0;i<10-row;i++)feather(wing,.1+i*.13,.29-row*.13+i*.025,.12+row*.045,.21,.42+row*.07,.2+i*.03,(i+row)%3?graphite:edge);
+ for(let row=0;row<3;row++)for(let i=0;i<10-row;i++)feather(wing,.1+i*.13,.29-row*.13+i*.025,.12+row*.045,.21,.42+row*.07,.2+i*.03,row===0?cyan:((i+row)%3?graphite:edge));
  for(let i=0;i<3;i++)rod(wing,[.3+i*.22,.28+i*.04,.20],[.40+i*.22,.10+i*.04,.21],.006,lime);
  }
  // Tail fan, articulated shins and curved talons.
- for(let i=-3;i<=3;i++){const f=feather(model,i*.085,-.56,-.18,.19,.90-Math.abs(i)*.05,-i*.09, i%2?graphite:edge);f.rotation.x=-.18}
+ for(let i=-3;i<=3;i++){const f=feather(model,i*.085,-.56,-.18,.19,.90-Math.abs(i)*.05,-i*.09, i%2?blue:cyan);f.rotation.x=-.18}
  for(let side of [-1,1]){
  ellipsoid(model,side*.25,-.65,.07,.17,.25,.18,graphite);rod(model,[side*.24,-.69,.08],[side*.26,-1.02,.20],.052,titanium);
  for(let j=0;j<3;j++)mesh(new THREE.TorusGeometry(.058,.012,6,16),edge,model,side*.26,-.87-j*.06,.19).rotation.x=Math.PI/2;
@@ -100,7 +107,7 @@ function initialize(){
  }
  // Real lettering attached to the breastplate, drawn as a texture label only.
  const labelCanvas=document.createElement('canvas');labelCanvas.width=256;labelCanvas.height=80;const c=labelCanvas.getContext('2d');c.font='500 42px monospace';c.textAlign='center';c.fillStyle='#b4c1c1';c.fillText('d4n7',128,52);const labelTexture=new THREE.CanvasTexture(labelCanvas);labelTexture.colorSpace=THREE.SRGBColorSpace;
- const label=mesh(new THREE.PlaneGeometry(.26,.082),new THREE.MeshBasicMaterial({map:labelTexture,transparent:true,depthWrite:false}),model,0,.08,.525);
+ const label=mesh(new THREE.PlaneGeometry(.26,.082),new THREE.MeshBasicMaterial({map:labelTexture,transparent:true,depthWrite:false}),model,0,.08,.572);
  // Exposed servo links, feather conductors and compact optical sensors.
  wings.forEach(wing=>{
   rod(wing,[.2,.12,.20],[.74,.36,.16],.021,titanium);
@@ -115,7 +122,7 @@ function initialize(){
   rod(model,[side*.28,.39,.41],[side*.19,-.12,.40],.008,lime);
  }
  let meshCount=0;model.traverse(o=>{if(o.isMesh)meshCount++});host.dataset.meshes=meshCount;
- let px=0,py=0,dx=0,dy=0,last=0,elapsed=0,previousScroll=scrollY,bank=0;
+ let px=0,py=0,dx=0,dy=0,last=0,elapsed=0,previousScroll=scrollY,bank=0,direction=0,lastDirection=0;
  addEventListener('pointermove',e=>{px=e.clientX/innerWidth-.5;py=e.clientY/innerHeight-.5;request()},{passive:true});
  function request(){if(!running&&!document.hidden&&!failed)running=requestAnimationFrame(frame)}
  function frame(now){running=0;const dt=last?Math.min((now-last)/1000,.06):0;last=now;if(!paused)elapsed+=dt;
@@ -125,20 +132,28 @@ function initialize(){
  const x=clamp(THREE.MathUtils.lerp(s.from.x,s.to.x,travel)+flight*45,0,Math.max(0,innerWidth-size)),y=THREE.MathUtils.lerp(s.from.y,s.to.y,travel)-flight*55;
  root.position.set(x+size/2-innerWidth/2,innerHeight/2-y-size/2,0);root.scale.setScalar(size/5.5);
  dx=THREE.MathUtils.damp(dx,paused?0:px,4,dt);dy=THREE.MathUtils.damp(dy,paused?0:py,4,dt);
- const velocity=clamp((scrollY-previousScroll)/Math.max(dt,1/60)/1800,-1,1);previousScroll=scrollY;
+ const delta=scrollY-previousScroll;
+ const velocity=clamp(delta/Math.max(dt,1/60)/1800,-1,1);previousScroll=scrollY;
+ if(Math.abs(delta)>.15)lastDirection=Math.sign(delta);
+ direction=THREE.MathUtils.damp(direction,paused?0:lastDirection*flight,5,dt);
  bank=THREE.MathUtils.damp(bank,paused?0:velocity,5,dt);
- const angle=-.55+dx*.38+bank*flight*.16;
- model.rotation.set(dy*.1-flight*.16,angle,-bank*flight*.17+Math.sin(elapsed*.38)*.009);
+ const angle=-.60+dx*.25+direction*.22;
+ // Positive pitch exposes the back in descent; negative pitch raises the beak in ascent.
+ model.rotation.set(dy*.07+direction*.72,angle,-direction*.14+Math.sin(elapsed*.38)*.009);
  model.position.y=Math.sin(elapsed*(flight>0.01?4:.8))*(.018+flight*.03);
- head.rotation.y=dx*.25+Math.sin(elapsed*.26)*.035;head.rotation.x=dy*.1+flight*.12;
- // Shoulder downstroke followed by the wrist, blended into a quiet perched pose.
- const beat=elapsed*4.8;
+ head.rotation.y=dx*.25+Math.sin(elapsed*.26)*.035;head.rotation.x=dy*.08+direction*.24;
+ // Idle wing display on the hero; stronger wingbeats while travelling.
+ const heroRest=s.from.id==='inicio'&&s.to.id==='inicio';
+ const idle=heroRest?.23:.025;
+ const amplitude=paused?0:THREE.MathUtils.lerp(idle,.68,flight);
+ const beat=elapsed*(heroRest?1.55:4.5);
  wings.forEach((wing,i)=>{const sign=i===0?-1:1;
-  wing.rotation.z=-sign*(.36*(1-flight)+flight*Math.sin(beat)*.33+Math.sin(elapsed*.65)*.018*(1-flight));
-  wing.rotation.y=sign*(.12+flight*Math.cos(beat)*.48+Math.sin(elapsed*.65+.4)*.035*(1-flight));
-  wing.userData.tip.rotation.y=sign*(flight*Math.cos(beat-.65)*.38+Math.sin(elapsed*.65-.4)*.028*(1-flight));
+  wing.rotation.z=-sign*(.30*(1-flight)+Math.sin(beat)*amplitude*.58);
+  wing.rotation.y=sign*(.12+Math.cos(beat)*amplitude);
+  wing.userData.tip.rotation.y=sign*Math.cos(beat-.65)*amplitude*.72;
+  wing.userData.tip.rotation.z=-sign*Math.sin(beat-.45)*amplitude*.12;
  });
- host.dataset.section=travel<.5?s.from.id:s.to.id;host.dataset.phase=flight>.05?'flying':'perched';host.dataset.progress=p.toFixed(4);
+ host.dataset.section=travel<.5?s.from.id:s.to.id;host.dataset.phase=flight>.05?'flying':(heroRest?'idle-wingbeat':'perched');host.dataset.progress=p.toFixed(4);host.dataset.direction=flight<.05?'rest':lastDirection<0?'up':'down';
  renderer.render(scene,camera);if(!paused)request();
  }
  function resize(){renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<700?1.5:2));renderer.setSize(innerWidth,innerHeight);camera.left=-innerWidth/2;camera.right=innerWidth/2;camera.top=innerHeight/2;camera.bottom=-innerHeight/2;camera.updateProjectionMatrix();request()}
