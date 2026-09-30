@@ -16,9 +16,9 @@ Abre http://localhost:4173.
 
 - `index.html`: estructura, perfil y contenido.
 - `style.css`: estilos y diseño responsive.
-- `app.js`: movimiento con perspectiva y cambio de pose del águila, terminal, fichas y controles.
+- `app.js`: terminal, fichas y controles, terminal, fichas y controles.
 
-La animación respeta la preferencia de movimiento reducido y puede pausarse manualmente. Las tipografías se cargan desde Google Fonts, con fuentes locales de respaldo.
+La escena 3D respeta la preferencia de movimiento reducido y puede pausarse manualmente. Las tipografías se cargan desde Google Fonts, con fuentes locales de respaldo.
 
 ## Personalización
 
@@ -30,12 +30,10 @@ El sitio se puede alojar en cualquier servidor de archivos estáticos, sirviendo
 
 El dominio deseado es `d4n7.dev`. La conexión DNS y el proveedor de hosting se configuran por separado.
 
-## Águila Phoenix
+## Águila 3D con Three.js
 
-La ilustración original se muestrea en una escultura de puntos WebGL con profundidad aproximada, perspectiva y movimiento mecánico sutil. No es una malla 3D articulada. Al cambiar de sección, las partículas se dispersan como cenizas y vuelven a construir la silueta junto al título; la portada reserva una composición de gran tamaño.
+`eagle3d.js` construye una escultura mecánica de geometría real: plumas con relieve, pecho acorazado, pico curvo, garras, sensores, conductores luminosos y articulaciones en cuello, hombros y alas. Los materiales físicos reciben iluminación de estudio y reflejos de entorno. No se usan imágenes para el render 3D, salvo la etiqueta del pecho; la ilustración original solo es respaldo cuando WebGL no está disponible.
 
-El render funciona sin dependencias externas, limita la resolución para móviles, se detiene en pestañas ocultas y respeta movimiento reducido. Sin WebGL se utiliza la ilustración estática. La pausa desactiva tanto la transición como el movimiento ambiental.
+El scroll controla el recorrido reversible entre títulos. El ave permanece sólida y aletea durante el trayecto, con movimiento de muñecas retrasado respecto de los hombros y una inclinación ligada a la velocidad del scroll. En reposo respira y orienta la cabeza sutilmente hacia el cursor. Pausar movimiento y la preferencia de movimiento reducido desactivan el vuelo.
 
-### Scroll reversible y reposo nítido
-
-El progreso de cada transición depende exclusivamente de la posición de scroll: se puede detener o invertir al desplazarse. El giro de las cenizas también depende del progreso, sin temporizadores. En reposo se muestra el PNG original de alta resolución con respiración y orientación suave hacia el cursor; las partículas solo aparecen durante la transición. Es una composición 2.5D, no una nueva malla articulada.
+Three.js 0.180.0 está incluido en `vendor/three/` con su licencia MIT; no requiere servicios externos para cargar la escena. Sirve el proyecto mediante HTTP para los módulos ES. El render limita la densidad de píxeles y se suspende al ocultar la pestaña.
